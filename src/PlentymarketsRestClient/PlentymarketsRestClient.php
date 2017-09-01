@@ -19,8 +19,14 @@ class PlentymarketsRestClient {
 	private $configFile;
 
 	public function __construct($configFile, $config) {
-		$this->client = new GuzzleHttp\Client();
+		$this->client = new Client();
+                $this->config = $config;
 
+		if (!file_exists($configFile)) {
+                    $this->configFile = $configFile;
+                    $this->saveConfigFile();
+		}                
+                
 		$this->setConfigFile($configFile);
 
 		if (!$this->isAccessTokenValid()) {
@@ -43,7 +49,7 @@ class PlentymarketsRestClient {
 		try {
 			$response = $this->client->request($method, $this->config["url"] . $path, $params);
 
-		} catch (Exception $e) {
+		} catch (\Exception $e) {
 			return false;
 		}
 
@@ -97,11 +103,13 @@ class PlentymarketsRestClient {
 	}
 
 	private function correctURL($url) {
-		if (!(s($url)->contains("https"))) {
+                $sUrl = new s($url);
+            
+		if (!($sUrl->contains("https"))) {
 			$url = str_replace("http://", "https://.", $url);
 		}
 
-		if (!(s($url)->contains("www."))) {
+		if (!($sUrl->contains("www."))) {
 			$url = str_replace("https://", "https://www.", $url);
 		}
 
@@ -115,15 +123,15 @@ class PlentymarketsRestClient {
 		$this->configFile = $configFile;
 
 		if (!file_exists($configFile)) {
-			throw new Exception("config file does not exists.");
+			throw new \Exception("config file does not exists.");
 		}
 
 		$this->config = unserialize(file_get_contents($this->configFile));
 
-		if ((!in_array("username", $this->config))
-			|| (!in_array("password", $this->config))
-			||  (!in_array("url", $this->config))) {
-			throw new Exception("username and/or password and/or url not in config(file)");
+		if (!array_key_exists("username", $this->config)
+                        || !array_key_exists("password", $this->config)
+                        || !array_key_exists("url", $this->config)) {
+			throw new \Exception("username and/or password and/or url not in config(file)");
 		}
 
 		$this->config["url"] = $this->correctURL($this->config["url"]);

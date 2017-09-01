@@ -30,10 +30,10 @@ $config = [
     "url" => "https://www.plentymarkets-system.tld",
 ];
 
-$client = new PlentymarketsRestClient(configFilePath, $config);
+$client = new PlentymarketsRestClient($configFilePath, $config);
 
 // After that just use it like this:
-$client = new PlentymarketsRestClient(configFilePath);
+$client = new PlentymarketsRestClient($configFilePath);
 ```
 
 It's possible to use the 4 HTTP verbs like this

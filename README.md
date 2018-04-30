@@ -78,6 +78,8 @@ $client->singleCall("GET", $guzzleParameterArray);
 * see [LICENSE](https://github.com/repat/plentymarkets-rest-client/blob/master/LICENSE) file
 
 ## Changelog
+* 0.1.3 Fix PHP 7.2 dependency
+* 0.1.2 Fix Carbon dependency
 * 0.1.1 Update Guzzle for PHP 7.2
 * 0.1 initial release
 

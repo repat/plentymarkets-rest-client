@@ -7,191 +7,200 @@ use GuzzleHttp\Client;
 use Psr\Http\Message\ResponseInterface;
 use Stringy\Stringy as s;
 
-class PlentymarketsRestClient {
+class PlentymarketsRestClient
+{
+    const PATH_LOGIN = 'rest/login';
+    const METHOD_GET = 'GET';
+    const METHOD_POST = 'POST';
+    const METHOD_PUT = 'PUT';
+    const METHOD_DELETE = 'DELETE';
+    const THROTTLING_PREFIX_LONG_PERIOD = 'X-Plenty-Global-Long-Period';
+    const THROTTLING_PREFIX_SHORT_PERIOD = 'X-Plenty-Global-Short-Period';
+    const THROTTLING_PREFIX_ROUTE = 'X-Plenty-Route';
 
-	const PATH_LOGIN = "rest/login";
-	const METHOD_GET = "GET";
-	const METHOD_POST = "POST";
-	const METHOD_PUT = "PUT";
-	const METHOD_DELETE = "DELETE";
-        const THROTTLING_PREFIX_LONG_PERIOD = "X-Plenty-Global-Long-Period";
-        const THROTTLING_PREFIX_SHORT_PERIOD = "X-Plenty-Global-Short-Period";
-        const THROTTLING_PREFIX_ROUTE = "X-Plenty-Route";
+    private $client;
+    private $config;
+    private $configFile;
+    private $rateLimitingEnabled = true;
+    private $throttledOnLastRequest = false;
 
-	private $client;
-	private $config;
-	private $configFile;
-        private $rateLimitingEnabled = true;
-        private $throttledOnLastRequest = false;
+    public function __construct($configFile, $config)
+    {
+        $this->client = new Client();
+        $this->config = $config;
 
-	public function __construct($configFile, $config) {
-		$this->client = new Client();
-                $this->config = $config;
-
-		if (!file_exists($configFile)) {
-                    $this->configFile = $configFile;
-                    $this->saveConfigFile();
-		}                
-                
-		$this->setConfigFile($configFile);
-
-		if (!$this->isAccessTokenValid()) {
-			$this->login();
-		}
-	}
-
-        public function getRateLimitingEnabled() {
-                return $this->rateLimitingEnabled;
+        if (!file_exists($configFile)) {
+            $this->configFile = $configFile;
+            $this->saveConfigFile();
         }
 
-        public function setRateLimitingEnabled($rateLimitingEnabled) {
-                $this->rateLimitingEnabled = $rateLimitingEnabled;
-                return $this;
-        }        
-        
-        public function getThrottledOnLastRequest() {
-                return $this->throttledOnLastRequest;
+        $this->setConfigFile($configFile);
+
+        if (!$this->isAccessTokenValid()) {
+            $this->login();
         }
-        
-	public function singleCall($method, $path, $params = []) {
+    }
 
-		$path = ltrim($path, "/");
+    public function getRateLimitingEnabled()
+    {
+        return $this->rateLimitingEnabled;
+    }
 
-		if (!($path == self::PATH_LOGIN)) {
-			$params = array_merge($params, [
-				"headers" => [
-					"Authorization" => "Bearer " . $this->config["access_token"],
-				],
-			]);
-		}
+    public function setRateLimitingEnabled($rateLimitingEnabled)
+    {
+        $this->rateLimitingEnabled = $rateLimitingEnabled;
+        return $this;
+    }
 
-		try {
-                        /* @var $response ResponseInterface */
-			$response = $this->client->request($method, $this->config["url"] . $path, $params);
-		} catch (\Exception $e) {
-			return false;
-		}
-                
-                $this->throttledOnLastRequest = false;
+    public function getThrottledOnLastRequest()
+    {
+        return $this->throttledOnLastRequest;
+    }
 
-                if ($this->rateLimitingEnabled) {
-                        $this->handleRateLimiting($response);                    
-                }
+    public function singleCall($method, $path, $params = [])
+    {
+        $path = ltrim($path, '/');
 
-		return json_decode($response->getBody(), true);
-	}
+        if (!($path == self::PATH_LOGIN)) {
+            $params = array_merge($params, [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $this->config['access_token'],
+                ],
+            ]);
+        }
 
-	public function get($path, $array = []) {
-		return $this->singleCall(self::METHOD_GET, $path, ["query" => $array]);
-	}
+        try {
+            /* @var $response ResponseInterface */
+            $response = $this->client->request($method, $this->config['url'] . $path, $params);
+        } catch (\Exception $e) {
+            return false;
+        }
 
-	public function post($path, $array = []) {
-		return $this->singleCall(self::METHOD_POST, $path, ["json" => $array]);
-	}
+        $this->throttledOnLastRequest = false;
 
-	public function put($path, $array = []) {
-		return $this->singleCall(self::METHOD_PUT, $path, ["json" => $array]);
-	}
+        if ($this->rateLimitingEnabled) {
+            $this->handleRateLimiting($response);
+        }
 
-	public function delete($path, $array = []) {
-		return $this->singleCall(self::METHOD_DELETE, $path, ["json" => $array]);
-	}
+        return json_decode($response->getBody(), true);
+    }
 
-	private function isAccessTokenValid() {
+    public function get($path, $array = [])
+    {
+        return $this->singleCall(self::METHOD_GET, $path, ['query' => $array]);
+    }
 
-		if (!in_array("valid_until", $this->config)) {
-			return false;
-		}
-		if (Carbon::parse($this->config["valid_until"])->gt(Carbon::now())) {
-			return true;
-		}
-		return false;
-	}
+    public function post($path, $array = [])
+    {
+        return $this->singleCall(self::METHOD_POST, $path, ['json' => $array]);
+    }
 
-	private function login() {
+    public function put($path, $array = [])
+    {
+        return $this->singleCall(self::METHOD_PUT, $path, ['json' => $array]);
+    }
 
-		$response = $this->singleCall(self::METHOD_POST, self::PATH_LOGIN, [
-			"form_params" => [
-				"username" => $this->config["username"],
-				"password" => $this->config["password"],
-			],
-		]);
+    public function delete($path, $array = [])
+    {
+        return $this->singleCall(self::METHOD_DELETE, $path, ['json' => $array]);
+    }
 
-		$this->config["access_token"] = $response["accessToken"];
-		$this->config["valid_until"] = Carbon::now()->addSeconds($response["expiresIn"])->toDateTimeString();
+    private function isAccessTokenValid()
+    {
+        if (!in_array('valid_until', $this->config)) {
+            return false;
+        }
+        return Carbon::parse($this->config['valid_until'])->gt(Carbon::now());
+    }
 
-		$this->saveConfigFile();
-	}
+    private function login()
+    {
+        $response = $this->singleCall(self::METHOD_POST, self::PATH_LOGIN, [
+            'form_params' => [
+                'username' => $this->config['username'],
+                'password' => $this->config['password'],
+            ],
+        ]);
 
-	private function saveConfigFile() {
-		file_put_contents($this->configFile, serialize($this->config));
-	}
+        $this->config['access_token'] = $response['accessToken'];
+        $this->config['valid_until'] = Carbon::now()->addSeconds($response['expiresIn'])->toDateTimeString();
 
-	private function correctURL($url) {
-                $sUrl = new s($url);
-            
-		if (!($sUrl->contains("https"))) {
-			$url = str_replace("http://", "https://.", $url);
-		}
+        $this->saveConfigFile();
+    }
 
-		if (!($sUrl->contains("www."))) {
-			$url = str_replace("https://", "https://www.", $url);
-		}
+    private function saveConfigFile()
+    {
+        file_put_contents($this->configFile, serialize($this->config));
+    }
 
-		$url = rtrim($url, "/") . "/";
+    private function correctURL($url)
+    {
+        $sUrl = new s($url);
 
-		return $url;
-	}
+        if (!($sUrl->contains('https'))) {
+            $url = str_replace('http://', 'https://.', $url);
+        }
 
-	private function setConfigFile($configFile) {
+        if (!($sUrl->contains('www.'))) {
+            $url = str_replace('https://', 'https://www.', $url);
+        }
 
-		$this->configFile = $configFile;
+        $url = rtrim($url, '/') . '/';
 
-		if (!file_exists($configFile)) {
-			throw new \Exception("config file does not exists.");
-		}
+        return $url;
+    }
 
-		$this->config = unserialize(file_get_contents($this->configFile));
+    private function setConfigFile($configFile)
+    {
+        $this->configFile = $configFile;
 
-		if (!array_key_exists("username", $this->config)
-                        || !array_key_exists("password", $this->config)
-                        || !array_key_exists("url", $this->config)) {
-			throw new \Exception("username and/or password and/or url not in config(file)");
-		}
+        if (!file_exists($configFile)) {
+            throw new \Exception('config file does not exists.');
+        }
 
-		$this->config["url"] = $this->correctURL($this->config["url"]);
+        $this->config = unserialize(file_get_contents($this->configFile));
 
-		$this->saveConfigFile();
-	}
-        
-        private function handleRateLimiting(ResponseInterface $response) {
-                $prefixes = array(
-                        self::THROTTLING_PREFIX_LONG_PERIOD, 
-                        self::THROTTLING_PREFIX_SHORT_PERIOD, 
+        if (!array_key_exists('username', $this->config)
+                        || !array_key_exists('password', $this->config)
+                        || !array_key_exists('url', $this->config)) {
+            throw new \Exception('username and/or password and/or url not in config(file)');
+        }
+
+        $this->config['url'] = $this->correctURL($this->config['url']);
+
+        $this->saveConfigFile();
+    }
+
+    private function handleRateLimiting(ResponseInterface $response)
+    {
+        $prefixes = [
+                        self::THROTTLING_PREFIX_LONG_PERIOD,
+                        self::THROTTLING_PREFIX_SHORT_PERIOD,
                         self::THROTTLING_PREFIX_ROUTE
-                );
+                    ];
 
-                $throttled = 0;
+        $throttled = 0;
 
-                foreach ($prefixes as $prefix) {
-                        $throttled += $this->handleThrottling($response, $prefix, $throttled);
-                }
+        foreach ($prefixes as $prefix) {
+            $throttled += $this->handleThrottling($response, $prefix, $throttled);
         }
-        
-        private function handleThrottling(ResponseInterface $response, $prefix, $throttled = 0) {
-                $callsLeft = $response->getHeader($prefix . '-Calls-Left');
-                $decay =  $response->getHeader($prefix . '-Decay');
+    }
 
-                if (count($callsLeft) < 1 || count($decay) < 1) {
-                        return 0;
-                }
-                
-                if ($callsLeft[0] < 1 && $decay[0] > $throttled) {
-                        sleep($decay[0] - $throttled);
-                        $this->throttledOnLastRequest = true;
-                        return $decay[0];
-                }            
+    private function handleThrottling(ResponseInterface $response, $prefix, $throttled = 0)
+    {
+        $callsLeft = $response->getHeader($prefix . '-Calls-Left');
+        $decay =  $response->getHeader($prefix . '-Decay');
 
-                return 0;
+        if (count($callsLeft) < 1 || count($decay) < 1) {
+            return 0;
         }
+
+        if ($callsLeft[0] < 1 && $decay[0] > $throttled) {
+            sleep($decay[0] - $throttled);
+            $this->throttledOnLastRequest = true;
+            return $decay[0];
+        }
+
+        return 0;
+    }
 }

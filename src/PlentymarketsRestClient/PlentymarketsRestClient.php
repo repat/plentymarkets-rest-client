@@ -4,6 +4,7 @@ namespace repat\PlentymarketsRestClient;
 
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Psr\Http\Message\ResponseInterface;
 use Stringy\Stringy as s;
 
 class PlentymarketsRestClient {
@@ -13,10 +14,15 @@ class PlentymarketsRestClient {
 	const METHOD_POST = "POST";
 	const METHOD_PUT = "PUT";
 	const METHOD_DELETE = "DELETE";
+        const THROTTLING_PREFIX_LONG_PERIOD = "X-Plenty-Global-Long-Period";
+        const THROTTLING_PREFIX_SHORT_PERIOD = "X-Plenty-Global-Short-Period";
+        const THROTTLING_PREFIX_ROUTE = "X-Plenty-Route";
 
 	private $client;
 	private $config;
 	private $configFile;
+        private $rateLimitingEnabled = true;
+        private $throttledOnLastRequest = false;
 
 	public function __construct($configFile, $config) {
 		$this->client = new Client();
@@ -34,6 +40,19 @@ class PlentymarketsRestClient {
 		}
 	}
 
+        public function getRateLimitingEnabled() {
+                return $this->rateLimitingEnabled;
+        }
+
+        public function setRateLimitingEnabled($rateLimitingEnabled) {
+                $this->rateLimitingEnabled = $rateLimitingEnabled;
+                return $this;
+        }        
+        
+        public function getThrottledOnLastRequest() {
+                return $this->throttledOnLastRequest;
+        }
+        
 	public function singleCall($method, $path, $params = []) {
 
 		$path = ltrim($path, "/");
@@ -47,11 +66,17 @@ class PlentymarketsRestClient {
 		}
 
 		try {
+                        /* @var $response ResponseInterface */
 			$response = $this->client->request($method, $this->config["url"] . $path, $params);
-
 		} catch (\Exception $e) {
 			return false;
 		}
+                
+                $this->throttledOnLastRequest = false;
+
+                if ($this->rateLimitingEnabled) {
+                        $this->handleRateLimiting($response);                    
+                }
 
 		return json_decode($response->getBody(), true);
 	}
@@ -138,4 +163,35 @@ class PlentymarketsRestClient {
 
 		$this->saveConfigFile();
 	}
+        
+        private function handleRateLimiting(ResponseInterface $response) {
+                $prefixes = array(
+                        self::THROTTLING_PREFIX_LONG_PERIOD, 
+                        self::THROTTLING_PREFIX_SHORT_PERIOD, 
+                        self::THROTTLING_PREFIX_ROUTE
+                );
+
+                $throttled = 0;
+
+                foreach ($prefixes as $prefix) {
+                        $throttled += $this->handleThrottling($response, $prefix, $throttled);
+                }
+        }
+        
+        private function handleThrottling(ResponseInterface $response, $prefix, $throttled = 0) {
+                $callsLeft = $response->getHeader($prefix . '-Calls-Left');
+                $decay =  $response->getHeader($prefix . '-Decay');
+
+                if (count($callsLeft) < 1 || count($decay) < 1) {
+                        return 0;
+                }
+                
+                if ($callsLeft[0] < 1 && $decay[0] > $throttled) {
+                        sleep($decay[0] - $throttled);
+                        $this->throttledOnLastRequest = true;
+                        return $decay[0];
+                }            
+
+                return 0;
+        }
 }

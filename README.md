@@ -1,16 +1,19 @@
 # plentymarkets-rest-client
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/repat/plentymarkets-rest-client.svg?style=flat-square)](https://packagist.org/packages/repat/plentymarkets-rest-client)
+[![Total Downloads](https://img.shields.io/packagist/dt/repat/plentymarkets-rest-client.svg?style=flat-square)](https://packagist.org/packages/repat/plentymarkets-rest-client)
 
 This is a PHP package for Plentymarkets new REST API. The API is relatively new (March 2017), so not everything might work correctly and this package might also be out of date at some point.
 
-I'm not in anyway affiliated with Plentymarkets, nor do I get paid for this by anybody. As it says in the license, this software is 'as-is'. If you want/need more features, open a GitHub ticket or write a pull request. I'll do my best :)
+I'm not in anyway affiliated with Plentymarkets, nor do I get paid for this by anybody. As it says in the license, this software is 'as-is'. If you want/need more features, open a GitHub ticket or write a pull request. I'll do my best :) That said, I don't work for the company I developed this for anymore, so if you have any interest in becoming a contributor on this repo, let me know.
 
 You can find the Plentymarkets documentation [here](https://developers.plentymarkets.com/):
 
 ### Overview
 * Functions for the 4 HTTP verbs: GET, POST, PUT, DELETE
 * Automatic login and refresh if login is not valid anymore
-* Simple one-time configuration with PHP array (will be saved serialzed in a file)
+* Simple one-time configuration with PHP array (will be saved serialized in a file)
 * Functions return an associative array
+* Handle rate limiting (thanks [hepisec](http://github.com/hepisec))
 
 ## Installation
 Available via composer on [Packagist](https://packagist.org/packages/repat/plentymarkets-rest-client):
@@ -66,7 +69,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 * If there was an error with the call (=> guzzle throws an exception) all functions will return false
 * If the specified config file doesn't exist or doesn't include username/password/url, an exception will be thrown
 
-## TODO 
+## TODO
 * Refresh without new login but refresh-token
 
 ## Dependencies
@@ -74,10 +77,11 @@ $client->singleCall("GET", $guzzleParameterArray);
 * [https://packagist.org/packages/guzzlehttp/guzzle](guzzlehttp/guzzle) for HTTP calls.
 * [https://packagist.org/packages/danielstjules/stringy](danielstjules/stringy) for string comparisons
 
-## License 
+## License
 * see [LICENSE](https://github.com/repat/plentymarkets-rest-client/blob/master/LICENSE) file
 
 ## Changelog
+* 0.1.4 Automatic rate limiting (thx [hepisec](https://github.com/repat/plentymarkets-rest-client/pull/8))
 * 0.1.3 Fix PHP 7.2 dependency
 * 0.1.2 Fix Carbon dependency
 * 0.1.1 Update Guzzle for PHP 7.2
@@ -88,5 +92,4 @@ $client->singleCall("GET", $guzzleParameterArray);
 * e-mail: repat@repat.de
 * Twitter: [@repat123](https://twitter.com/repat123 "repat123 on twitter")
 
-[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=repat&url=https://github.com/repat/plentymarkets-rest-client&title=plentymarkets-rest-client&language=&tags=github&category=software) 
-
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=repat&url=https://github.com/repat/plentymarkets-rest-client&title=plentymarkets-rest-client&language=&tags=github&category=software)

@@ -141,10 +141,6 @@ class PlentymarketsRestClient
             $url = str_replace('http://', 'https://.', $url);
         }
 
-        if (!($sUrl->contains('www.'))) {
-            $url = str_replace('https://', 'https://www.', $url);
-        }
-
         $url = rtrim($url, '/') . '/';
 
         return $url;

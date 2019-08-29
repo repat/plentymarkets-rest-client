@@ -81,6 +81,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 * see [LICENSE](https://github.com/repat/plentymarkets-rest-client/blob/master/LICENSE) file
 
 ## Changelog
+* 0.1.5 Remove check for `www.` as it breaks subdomains (thx [daniel-mannheimer](https://github.com/repat/plentymarkets-rest-client/pull/9))
 * 0.1.4 Automatic rate limiting (thx [hepisec](https://github.com/repat/plentymarkets-rest-client/pull/8))
 * 0.1.3 Fix PHP 7.2 dependency
 * 0.1.2 Fix Carbon dependency

@@ -14,8 +14,8 @@ class PlentymarketsRestClient
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
     const METHOD_PATCH = 'PATCH';
-
     const METHOD_DELETE = 'DELETE';
+    
     const THROTTLING_PREFIX_LONG_PERIOD = 'X-Plenty-Global-Long-Period';
     const THROTTLING_PREFIX_SHORT_PERIOD = 'X-Plenty-Global-Short-Period';
     const THROTTLING_PREFIX_ROUTE = 'X-Plenty-Route';

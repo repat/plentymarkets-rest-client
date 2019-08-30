@@ -14,6 +14,7 @@ class PlentymarketsRestClient
     const METHOD_POST = 'POST';
     const METHOD_PUT = 'PUT';
     const METHOD_PATCH = 'PATCH';
+
     const METHOD_DELETE = 'DELETE';
     const THROTTLING_PREFIX_LONG_PERIOD = 'X-Plenty-Global-Long-Period';
     const THROTTLING_PREFIX_SHORT_PERIOD = 'X-Plenty-Global-Short-Period';
@@ -105,7 +106,7 @@ class PlentymarketsRestClient
     {
         return $this->singleCall(self::METHOD_PATCH, $path, ['json' => $array]);
     }
-    
+
     public function delete($path, $array = [])
     {
         return $this->singleCall(self::METHOD_DELETE, $path, ['json' => $array]);

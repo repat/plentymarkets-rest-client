@@ -26,11 +26,15 @@ class PlentymarketsRestClient
     private $rateLimitingEnabled = true;
     private $throttledOnLastRequest = false;
 
-    public function __construct($configFile, $config)
+    public function __construct($configFile, $config = null)
     {
         $this->client = new Client();
-        $this->config = $config;
-
+        if ($config !== null) {
+            $this->config = $config;
+        } else {
+            $this->config =  $this->readConfigFile($configFile);
+        }
+        
         if (!file_exists($configFile)) {
             $this->configFile = $configFile;
             $this->saveConfigFile();
@@ -140,6 +144,11 @@ class PlentymarketsRestClient
         file_put_contents($this->configFile, serialize($this->config));
     }
 
+    private function readConfigFile($configFile)
+    {
+        return unserialize(file_get_contents($configFile));
+    }
+    
     private function correctURL($url)
     {
         $sUrl = new s($url);

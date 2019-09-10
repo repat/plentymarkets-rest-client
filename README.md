@@ -81,6 +81,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 * see [LICENSE](https://github.com/repat/plentymarkets-rest-client/blob/master/LICENSE) file
 
 ## Changelog
+* 0.1.7 Fix constructor according to README (thx [daniel-mannheimer](https://github.com/repat/plentymarkets-rest-client/pull/11))
 * 0.1.6 Support for HTTP `PATCH` (thx [hepisec](https://github.com/repat/plentymarkets-rest-client/pull/10))
 * 0.1.5 Remove check for `www.` as it breaks subdomains (thx [daniel-mannheimer](https://github.com/repat/plentymarkets-rest-client/pull/9))
 * 0.1.4 Automatic rate limiting (thx [hepisec](https://github.com/repat/plentymarkets-rest-client/pull/8))

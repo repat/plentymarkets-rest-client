@@ -118,7 +118,7 @@ class PlentymarketsRestClient
 
     private function isAccessTokenValid()
     {
-        if (!in_array('valid_until', $this->config)) {
+        if (!array_key_exists('valid_until', $this->config)) {
             return false;
         }
         return Carbon::parse($this->config['valid_until'])->gt(Carbon::now());

@@ -15,34 +15,41 @@ class PlentymarketsRestClient
     const METHOD_PUT = 'PUT';
     const METHOD_PATCH = 'PATCH';
     const METHOD_DELETE = 'DELETE';
-    
+
     const THROTTLING_PREFIX_LONG_PERIOD = 'X-Plenty-Global-Long-Period';
     const THROTTLING_PREFIX_SHORT_PERIOD = 'X-Plenty-Global-Short-Period';
     const THROTTLING_PREFIX_ROUTE = 'X-Plenty-Route';
+
+    const NO_CONFIG = null;
+    const HANDLE_EXCEPTIONS = true;
+    const DONT_HANDLE_EXCEPTIONS = false;
 
     private $client;
     private $config;
     private $configFile;
     private $rateLimitingEnabled = true;
     private $throttledOnLastRequest = false;
+    private $handleExceptions = false;
 
-    public function __construct($configFile, $config = null)
+    public function __construct($configFile, $config = null, $handleExceptions = false)
     {
+        $this->handleExceptions = $handleExceptions;
+
         $this->client = new Client();
         if ($config !== null) {
             $this->config = $config;
         } else {
             $this->config =  $this->readConfigFile($configFile);
         }
-        
-        if (!file_exists($configFile)) {
+
+        if (! file_exists($configFile)) {
             $this->configFile = $configFile;
             $this->saveConfigFile();
         }
 
         $this->setConfigFile($configFile);
 
-        if (!$this->isAccessTokenValid()) {
+        if (! $this->isAccessTokenValid()) {
             $this->login();
         }
     }
@@ -67,7 +74,7 @@ class PlentymarketsRestClient
     {
         $path = ltrim($path, '/');
 
-        if (!($path == self::PATH_LOGIN)) {
+        if (! ($path == self::PATH_LOGIN)) {
             $params = array_merge($params, [
                 'headers' => [
                     'Authorization' => 'Bearer ' . $this->config['access_token'],
@@ -79,6 +86,9 @@ class PlentymarketsRestClient
             /* @var $response ResponseInterface */
             $response = $this->client->request($method, $this->config['url'] . $path, $params);
         } catch (\Exception $e) {
+            if ($this->handleExceptions === true) {
+                throw $e;
+            }
             return false;
         }
 
@@ -118,7 +128,7 @@ class PlentymarketsRestClient
 
     private function isAccessTokenValid()
     {
-        if (!array_key_exists('valid_until', $this->config)) {
+        if (! array_key_exists('valid_until', $this->config)) {
             return false;
         }
         return Carbon::parse($this->config['valid_until'])->gt(Carbon::now());
@@ -148,12 +158,12 @@ class PlentymarketsRestClient
     {
         return unserialize(file_get_contents($configFile));
     }
-    
+
     private function correctURL($url)
     {
         $sUrl = new s($url);
 
-        if (!($sUrl->contains('https'))) {
+        if (! ($sUrl->contains('https'))) {
             $url = str_replace('http://', 'https://.', $url);
         }
 
@@ -166,15 +176,15 @@ class PlentymarketsRestClient
     {
         $this->configFile = $configFile;
 
-        if (!file_exists($configFile)) {
+        if (! file_exists($configFile)) {
             throw new \Exception('config file does not exists.');
         }
 
         $this->config = unserialize(file_get_contents($this->configFile));
 
-        if (!array_key_exists('username', $this->config)
-                        || !array_key_exists('password', $this->config)
-                        || !array_key_exists('url', $this->config)) {
+        if (! array_key_exists('username', $this->config)
+                        || ! array_key_exists('password', $this->config)
+                        || ! array_key_exists('url', $this->config)) {
             throw new \Exception('username and/or password and/or url not in config(file)');
         }
 

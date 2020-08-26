@@ -33,7 +33,12 @@ $config = [
     "url" => "https://www.plentymarkets-system.tld",
 ];
 
-$client = new PlentymarketsRestClient($configFilePath, $config);
+// Handle (Guzzle) Exceptions yourself - optional 3rd parameter
+$handleExceptions = PlentymarketsRestClient::HANDLE_EXCEPTIONS; // true
+$handleExceptions = PlentymarketsRestClient::DONT_HANDLE_EXCEPTIONS; // false (default)
+
+// Init
+$client = new PlentymarketsRestClient($configFilePath, $config, $handleExceptions);
 
 // After that just use it like this:
 $client = new PlentymarketsRestClient($configFilePath);
@@ -81,6 +86,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 * see [LICENSE](https://github.com/repat/plentymarkets-rest-client/blob/master/LICENSE) file
 
 ## Changelog
+* 0.1.10 Allow dealing with Exceptions yourself by passing `true` as 3rd parameter
 * 0.1.9 Bugfix `isAccessTokenValid()` (thx [hochdruckspezialist](https://github.com/repat/plentymarkets-rest-client/pull/14))
 * 0.1.8 Update, so Carbon 2.0 can be used (thx [stefnats](https://github.com/repat/plentymarkets-rest-client/pull/12))
 * 0.1.7 Fix constructor according to README (thx [daniel-mannheimer](https://github.com/repat/plentymarkets-rest-client/pull/11))

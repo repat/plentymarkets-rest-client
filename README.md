@@ -1,4 +1,5 @@
 # plentymarkets-rest-client
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/repat/plentymarkets-rest-client.svg?style=flat-square)](https://packagist.org/packages/repat/plentymarkets-rest-client)
 [![Total Downloads](https://img.shields.io/packagist/dt/repat/plentymarkets-rest-client.svg?style=flat-square)](https://packagist.org/packages/repat/plentymarkets-rest-client)
 
@@ -8,7 +9,8 @@ I'm not in anyway affiliated with Plentymarkets, nor do I get paid for this by a
 
 You can find the Plentymarkets documentation [here](https://developers.plentymarkets.com/):
 
-### Overview
+## Overview
+
 * Functions for the 4 HTTP verbs: GET, POST, PUT, DELETE
 * Automatic login and refresh if login is not valid anymore
 * Simple one-time configuration with PHP array (will be saved serialized in a file)
@@ -16,11 +18,13 @@ You can find the Plentymarkets documentation [here](https://developers.plentymar
 * Handle rate limiting (thanks [hepisec](http://github.com/hepisec))
 
 ## Installation
+
 Available via composer on [Packagist](https://packagist.org/packages/repat/plentymarkets-rest-client):
 
 `composer require repat/plentymarkets-rest-client`
 
 ## Usage
+
 ```php
 use repat\PlentymarketsRestClient\PlentymarketsRestClient;
 
@@ -45,6 +49,7 @@ $client = new PlentymarketsRestClient($configFilePath);
 ```
 
 It's possible to use the 4 HTTP verbs like this
+
 ```php
 $client->get($path, $parameterArray);
 $client->post($path, $parameterArray);
@@ -71,21 +76,27 @@ $client->singleCall("GET", $guzzleParameterArray);
 ```
 
 ### Errors
+
 * If there was an error with the call (=> guzzle throws an exception) all functions will return false
 * If the specified config file doesn't exist or doesn't include username/password/url, an exception will be thrown
 
 ## TODO
+
 * Refresh without new login but refresh-token
 
 ## Dependencies
+
 * [https://packagist.org/packages/nesbot/carbon](nesbot/carbon) for date comparison
 * [https://packagist.org/packages/guzzlehttp/guzzle](guzzlehttp/guzzle) for HTTP calls.
 * [https://packagist.org/packages/danielstjules/stringy](danielstjules/stringy) for string comparisons
 
 ## License
+
 * see [LICENSE](https://github.com/repat/plentymarkets-rest-client/blob/master/LICENSE) file
 
 ## Changelog
+
+* 0.1.11 PHP 8 Support & wait in case of _short period read limit reached_ error (thx [fwehrhausen](https://github.com/repat/plentymarkets-rest-client/pull/15))
 * 0.1.10 Allow dealing with Exceptions yourself by passing `true` as 3rd parameter
 * 0.1.9 Bugfix `isAccessTokenValid()` (thx [hochdruckspezialist](https://github.com/repat/plentymarkets-rest-client/pull/14))
 * 0.1.8 Update, so Carbon 2.0 can be used (thx [stefnats](https://github.com/repat/plentymarkets-rest-client/pull/12))
@@ -99,7 +110,8 @@ $client->singleCall("GET", $guzzleParameterArray);
 * 0.1 initial release
 
 ## Contact
-* Homepage: https://repat.de
+
+* Homepage: [https://repat.de](https://repat.de)
 * e-mail: repat@repat.de
 * Twitter: [@repat123](https://twitter.com/repat123 "repat123 on twitter")
 

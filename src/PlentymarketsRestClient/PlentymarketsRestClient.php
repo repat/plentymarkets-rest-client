@@ -16,6 +16,9 @@ class PlentymarketsRestClient
     const METHOD_PATCH = 'PATCH';
     const METHOD_DELETE = 'DELETE';
 
+    const WAIT_ERROR_SHORT_PERIOD_READ_LIMIT = 5;
+    const ERROR_SHORT_PERIOD_READ_LIMIT = 'short period read limit reached';
+
     const THROTTLING_PREFIX_LONG_PERIOD = 'X-Plenty-Global-Long-Period';
     const THROTTLING_PREFIX_SHORT_PERIOD = 'X-Plenty-Global-Short-Period';
     const THROTTLING_PREFIX_ROUTE = 'X-Plenty-Route';
@@ -87,16 +90,18 @@ class PlentymarketsRestClient
             $response = $this->client->request($method, $this->config['url'] . $path, $params);
         } catch (\Exception $e) {
 
-            //for a better plentymarkets exception handling, sometimes the limit is not correctly
-            if (strpos('short period read limit reached', $e->getMessage())) {
-                sleep(5);
+            // For a better Plentymarkets exception handling. Sometimes the limit is not correct
+            if (s($e->getMessage())->contains(self::ERROR_SHORT_PERIOD_READ_LIMIT)) {
+                sleep(self::WAIT_ERROR_SHORT_PERIOD_READ_LIMIT);
                 $this->singleCall($method, $path, $params);
+                // TODO possible handle recursion errors
             }
 
             if ($this->handleExceptions === true) {
                 throw $e;
             }
-            return false;
+
+            return null;
         }
 
         $this->throttledOnLastRequest = false;

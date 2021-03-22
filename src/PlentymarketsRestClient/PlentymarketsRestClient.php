@@ -86,6 +86,13 @@ class PlentymarketsRestClient
             /* @var $response ResponseInterface */
             $response = $this->client->request($method, $this->config['url'] . $path, $params);
         } catch (\Exception $e) {
+
+            //for a better plentymarkets exception handling, sometimes the limit is not correctly
+            if (strpos('short period read limit reached', $e->getMessage())) {
+                sleep(5);
+                $this->singleCall($method, $path, $params);
+            }
+
             if ($this->handleExceptions === true) {
                 throw $e;
             }

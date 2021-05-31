@@ -91,7 +91,7 @@ class PlentymarketsRestClient
         } catch (\Exception $e) {
 
             // For a better Plentymarkets exception handling. Sometimes the limit is not correct
-            if (s($e->getMessage())->contains(self::ERROR_SHORT_PERIOD_READ_LIMIT)) {
+            if (new (s($e->getMessage()))->contains(self::ERROR_SHORT_PERIOD_READ_LIMIT)) {
                 sleep(self::WAIT_ERROR_SHORT_PERIOD_READ_LIMIT);
                 $this->singleCall($method, $path, $params);
                 // TODO possible handle recursion errors

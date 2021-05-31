@@ -88,7 +88,6 @@ $client->singleCall("GET", $guzzleParameterArray);
 
 * [https://packagist.org/packages/nesbot/carbon](nesbot/carbon) for date comparison
 * [https://packagist.org/packages/guzzlehttp/guzzle](guzzlehttp/guzzle) for HTTP calls.
-* [https://packagist.org/packages/danielstjules/stringy](danielstjules/stringy) for string comparisons
 
 ## License
 

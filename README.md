@@ -96,6 +96,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 
 ## Changelog
 
+* 0.1.12 Remove `danielstjules/stringy` dependency, copy over [Laravels `str_contains`](https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php#L181) instead
 * 0.1.11 PHP 8 Support & wait in case of _short period read limit reached_ error (thx [fwehrhausen](https://github.com/repat/plentymarkets-rest-client/pull/15))
 * 0.1.10 Allow dealing with Exceptions yourself by passing `true` as 3rd parameter
 * 0.1.9 Bugfix `isAccessTokenValid()` (thx [hochdruckspezialist](https://github.com/repat/plentymarkets-rest-client/pull/14))

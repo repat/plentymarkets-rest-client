@@ -90,7 +90,7 @@ class PlentymarketsRestClient
         } catch (\Exception $e) {
 
             // For a better Plentymarkets exception handling. Sometimes the limit is not correct
-            if ($this->str_contains($e->getMessage(), self::ERROR_SHORT_PERIOD_READ_LIMIT)) {
+            if (stripos($e->getMessage(), self::ERROR_SHORT_PERIOD_READ_LIMIT) !== false) {
                 sleep(self::WAIT_ERROR_SHORT_PERIOD_READ_LIMIT);
                 $this->singleCall($method, $path, $params);
                 // TODO possible handle recursion errors
@@ -172,7 +172,7 @@ class PlentymarketsRestClient
 
     private function correctURL($url)
     {
-        if (! ($this->str_contains('https', $url))) {
+        if (stripos('https', $url) === false) {
             $url = str_replace('http://', 'https://', $url);
         }
 
@@ -233,27 +233,5 @@ class PlentymarketsRestClient
         }
 
         return 0;
-    }
-
-    /**
-     * Determine if a given string contains a given substring.
-     *
-     * NOTE could use native str_contains in PHP 8+
-     *
-     * @source https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php#L181
-     *
-     * @param  string  $haystack
-     * @param  string|string[]  $needles
-     * @return bool
-     */
-    private function str_contains($haystack, $needles)
-    {
-        foreach ((array) $needles as $needle) {
-            if ($needle !== '' && mb_strpos($haystack, $needle) !== false) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }

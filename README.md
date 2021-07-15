@@ -95,6 +95,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 
 ## Changelog
 
+* 0.1.13 Change from [Laravels `str_contains`](https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php#L181) to [PHPs `stripos()`](https://www.php.net/manual/de/function.stripos.php) because [it doesn't require `ext-mbstring`](https://github.com/repat/plentymarkets-rest-client/pull/16#issuecomment-880731813)
 * 0.1.12 Remove `danielstjules/stringy` dependency, copy over [Laravels `str_contains`](https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php#L181) instead
 * 0.1.11 PHP 8 Support & wait in case of _short period read limit reached_ error (thx [fwehrhausen](https://github.com/repat/plentymarkets-rest-client/pull/15))
 * 0.1.10 Allow dealing with Exceptions yourself by passing `true` as 3rd parameter

@@ -3,7 +3,7 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/repat/plentymarkets-rest-client.svg?style=flat-square)](https://packagist.org/packages/repat/plentymarkets-rest-client)
 [![Total Downloads](https://img.shields.io/packagist/dt/repat/plentymarkets-rest-client.svg?style=flat-square)](https://packagist.org/packages/repat/plentymarkets-rest-client)
 
-This is a PHP package for Plentymarkets new REST API. The API is relatively new (March 2017), so not everything might work correctly and this package might also be out of date at some point.
+This is a PHP package for Plentymarkets new REST API. The API is relatively new at time of writing (March 2017), so not everything might work correctly and this package might also be out of date at some point.
 
 I'm not in anyway affiliated with Plentymarkets, nor do I get paid for this by anybody. As it says in the license, this software is 'as-is'. If you want/need more features, open a GitHub ticket or write a pull request. I'll do my best :) That said, I don't work for the company I developed this for anymore, so if you have any interest in becoming a contributor on this repo, let me know.
 
@@ -95,6 +95,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 
 ## Changelog
 
+* 0.1.14 Add _short period write limit reached_ error handling (thx resslinger)
 * 0.1.13 Change from [Laravels `str_contains`](https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php#L181) to [PHPs `stripos()`](https://www.php.net/manual/de/function.stripos.php) because [it doesn't require `ext-mbstring`](https://github.com/repat/plentymarkets-rest-client/pull/16#issuecomment-880731813) (thx DanMan)
 * 0.1.12 Remove `danielstjules/stringy` dependency, copy over [Laravels `str_contains`](https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php#L181) instead
 * 0.1.11 PHP 8 Support & wait in case of _short period read limit reached_ error (thx [fwehrhausen](https://github.com/repat/plentymarkets-rest-client/pull/15))

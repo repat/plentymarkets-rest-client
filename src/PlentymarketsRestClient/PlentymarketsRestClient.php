@@ -18,6 +18,9 @@ class PlentymarketsRestClient
     const WAIT_ERROR_SHORT_PERIOD_READ_LIMIT = 5;
     const ERROR_SHORT_PERIOD_READ_LIMIT = 'short period read limit reached';
 
+    const WAIT_ERROR_SHORT_PERIOD_WRITE_LIMIT = 10;
+    const ERROR_SHORT_PERIOD_WRITE_LIMIT = 'short period write limit reached';
+
     const THROTTLING_PREFIX_LONG_PERIOD = 'X-Plenty-Global-Long-Period';
     const THROTTLING_PREFIX_SHORT_PERIOD = 'X-Plenty-Global-Short-Period';
     const THROTTLING_PREFIX_ROUTE = 'X-Plenty-Route';
@@ -90,10 +93,13 @@ class PlentymarketsRestClient
         } catch (\Exception $e) {
 
             // For a better Plentymarkets exception handling. Sometimes the limit is not correct
+            // TODO possible handle recursion errors
             if (stripos($e->getMessage(), self::ERROR_SHORT_PERIOD_READ_LIMIT) !== false) {
                 sleep(self::WAIT_ERROR_SHORT_PERIOD_READ_LIMIT);
                 $this->singleCall($method, $path, $params);
-                // TODO possible handle recursion errors
+            } elseif (stripos($e->getMessage(), self::ERROR_SHORT_PERIOD_WRITE_LIMIT) !== false) {
+                sleep(self::WAIT_ERROR_SHORT_PERIOD_WRITE_LIMIT);
+                $this->singleCall($method, $path, $params);
             }
 
             if ($this->handleExceptions === true) {

@@ -5,24 +5,12 @@
     "keywords": ["plentymarkets", "pm", "rest", "api", "client", "sdk"],
     "homepage": "https://github.com/repat/plentymarkets-rest-client",
     "license": "MIT",
-    "version" : "0.1.14",
+    "version" : "0.1.15",
     "authors": [
         {
             "name": "repat",
             "email": "repat@repat.de",
             "role": "Developer"
-        },
-        {
-            "name": "hepisec",
-            "role": "Contributor"
-        },
-        {
-            "name": "daniel-mannheimer",
-            "role": "Contributor"
-        },
-        {
-            "name": "fwehrhausen",
-            "role": "Contributor"
         }
     ],
     "require": {

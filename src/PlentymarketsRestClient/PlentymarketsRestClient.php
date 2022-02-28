@@ -115,11 +115,16 @@ class PlentymarketsRestClient
             $this->handleRateLimiting($response);
         }
 
-        if($response->getHeaders()['Content-Type'][0] == 'application/pdf'){
+        $headers = $response->getHeaders();
+
+        if (is_array($headers)
+            && array_key_exists('Content-Type', $headers)
+            && array_key_exists(0, $headers['Content-Type'])
+            && $headers['Content-Type'][0] === 'application/pdf') {
             return $response->getBody()->getContents();
-        }else{
-            return json_decode($response->getBody(), true);
         }
+
+        return json_decode($response->getBody(), true);
     }
 
     public function get($path, $array = [])

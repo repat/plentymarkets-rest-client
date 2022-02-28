@@ -115,7 +115,11 @@ class PlentymarketsRestClient
             $this->handleRateLimiting($response);
         }
 
-        return json_decode($response->getBody(), true);
+        if($response->getHeaders()['Content-Type'][0] == 'application/pdf'){
+            return $response->getBody()->getContents();
+        }else{
+            return json_decode($response->getBody(), true);
+        }
     }
 
     public function get($path, $array = [])

@@ -25,9 +25,13 @@ class PlentymarketsRestClient
     const THROTTLING_PREFIX_SHORT_PERIOD = 'X-Plenty-Global-Short-Period';
     const THROTTLING_PREFIX_ROUTE = 'X-Plenty-Route';
 
+    const JSON_DECODE_ENABLED = true;
+    const JSON_DECODE_DISABLED = false;
+    
     const NO_CONFIG = null;
     const HANDLE_EXCEPTIONS = true;
     const DONT_HANDLE_EXCEPTIONS = false;
+    
 
     private $client;
     private $config;
@@ -35,6 +39,7 @@ class PlentymarketsRestClient
     private $rateLimitingEnabled = true;
     private $throttledOnLastRequest = false;
     private $handleExceptions = false;
+    private $jsonEncodeEnabled = true;
 
     public function __construct($configFile, $config = null, $handleExceptions = false)
     {
@@ -58,7 +63,7 @@ class PlentymarketsRestClient
             $this->login();
         }
     }
-
+    
     public function getRateLimitingEnabled()
     {
         return $this->rateLimitingEnabled;
@@ -74,7 +79,22 @@ class PlentymarketsRestClient
     {
         return $this->throttledOnLastRequest;
     }
-
+    
+    public function enableJsonDecode()
+    {
+        $this->jsonEncodeEnabled = self::JSON_DECODE_ENABLED;
+        return $this;
+    }
+    public function disableJsonDecode()
+    {
+        $this->jsonEncodeEnabled = self::JSON_DECODE_DISABLED;
+        return $this;
+    }
+    public function setJsonDecodeDisabled()
+    {
+        $this->jsonEncodeEnabled = self::JSON_DECODE_DISABLED;
+        return $this;
+    }
     public function singleCall($method, $path, $params = [])
     {
         $path = ltrim($path, '/');
@@ -123,7 +143,10 @@ class PlentymarketsRestClient
             && $headers['Content-Type'][0] === 'application/pdf') {
             return $response->getBody()->getContents();
         }
-
+        if($this->jsonEncodeEnabled === self::JSON_DECODE_DISABLED)
+        {
+            return $response->getBody();
+        }
         return json_decode($response->getBody(), true);
     }
 

@@ -27,11 +27,13 @@ class PlentymarketsRestClient
 
     const JSON_DECODE_ENABLED = true;
     const JSON_DECODE_DISABLED = false;
-    
+
+    const RATE_LIMITING_ENABLED = true;
+    const RATE_LIMITING_DISABLED = false;
+
     const NO_CONFIG = null;
     const HANDLE_EXCEPTIONS = true;
     const DONT_HANDLE_EXCEPTIONS = false;
-    
 
     private $client;
     private $config;
@@ -39,7 +41,7 @@ class PlentymarketsRestClient
     private $rateLimitingEnabled = true;
     private $throttledOnLastRequest = false;
     private $handleExceptions = false;
-    private $jsonEncodeEnabled = true;
+    private $jsonDecodeEnabled = true;
 
     public function __construct($configFile, $config = null, $handleExceptions = false)
     {
@@ -63,7 +65,12 @@ class PlentymarketsRestClient
             $this->login();
         }
     }
-    
+
+    public function getThrottledOnLastRequest()
+    {
+        return $this->throttledOnLastRequest;
+    }
+
     public function getRateLimitingEnabled()
     {
         return $this->rateLimitingEnabled;
@@ -71,30 +78,29 @@ class PlentymarketsRestClient
 
     public function setRateLimitingEnabled($rateLimitingEnabled)
     {
+        if (! is_bool($rateLimitingEnabled)) {
+            throw new \Exception('rateLimitingEnabled must be a boolean, ' . gettype($rateLimitingEnabled) . ' given');
+        }
+
         $this->rateLimitingEnabled = $rateLimitingEnabled;
         return $this;
     }
 
-    public function getThrottledOnLastRequest()
+    public function getJsonDecodeEnabled()
     {
-        return $this->throttledOnLastRequest;
+        return $this->jsonDecodeEnabled;
     }
-    
-    public function enableJsonDecode()
+
+    public function setJsonDecodeEnabled($jsonDecodeEnabled)
     {
-        $this->jsonEncodeEnabled = self::JSON_DECODE_ENABLED;
+        if (! is_bool($jsonDecodeEnabled)) {
+            throw new \Exception('jsonDecodeEnabled must be a boolean, ' . gettype($jsonDecodeEnabled) . ' given');
+        }
+
+        $this->jsonDecodeEnabled = $jsonDecodeEnabled;
         return $this;
     }
-    public function disableJsonDecode()
-    {
-        $this->jsonEncodeEnabled = self::JSON_DECODE_DISABLED;
-        return $this;
-    }
-    public function setJsonDecodeDisabled()
-    {
-        $this->jsonEncodeEnabled = self::JSON_DECODE_DISABLED;
-        return $this;
-    }
+
     public function singleCall($method, $path, $params = [])
     {
         $path = ltrim($path, '/');
@@ -143,10 +149,11 @@ class PlentymarketsRestClient
             && $headers['Content-Type'][0] === 'application/pdf') {
             return $response->getBody()->getContents();
         }
-        if($this->jsonEncodeEnabled === self::JSON_DECODE_DISABLED)
-        {
+
+        if (! $this->jsonDecodeEnabled) {
             return $response->getBody();
         }
+
         return json_decode($response->getBody(), true);
     }
 

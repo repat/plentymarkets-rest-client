@@ -14,7 +14,7 @@ You can find the Plentymarkets documentation [here](https://developers.plentymar
 * Functions for the 4 HTTP verbs: GET, POST, PUT, DELETE
 * Automatic login and refresh if login is not valid anymore
 * Simple one-time configuration with PHP array (will be saved serialized in a file)
-* Functions return an associative array
+* Functions return an associative array by default or raw data (e.g. for files)
 * Handle rate limiting (thanks [hepisec](http://github.com/hepisec))
 
 ## Installation
@@ -44,7 +44,7 @@ $handleExceptions = PlentymarketsRestClient::DONT_HANDLE_EXCEPTIONS; // false (d
 // Init
 $client = new PlentymarketsRestClient($configFilePath, $config, $handleExceptions);
 
-// After that just use it like this:
+// After that just use it like so
 $client = new PlentymarketsRestClient($configFilePath);
 ```
 
@@ -68,17 +68,25 @@ $path = "rest/orders/";
 ```
 
 It's also possible to use the function like this. It gives you more freedom, since
-you can specify the method and the $parameters given are directly given to the [guzzle
+you can specify the method and the $parameters given are directly given to the [Guzzle
 object](http://docs.guzzlephp.org/en/latest/quickstart.html).
 
 ```php
 $client->singleCall("GET", $guzzleParameterArray);
 ```
 
+### Raw Data
+
+Some endpoints, such as `/rest/bi/raw-data/file` don't return JSON but a raw file. However, by default a single call tries to [`json_decode()`](https://www.php.net/manual/en/function.json-decode.php) the response. You can disable it by setting the `$jsonDecodeEnabled` flag to `false`.
+
+```php
+$client->setJsonDecodeEnabled(PlentymarketsRestClient::JSON_DECODE_DISABLED);
+```
+
 ### Errors
 
-* If there was an error with the call (=> guzzle throws an exception) all functions will return false
-* If the specified config file doesn't exist or doesn't include username/password/url, an exception will be thrown
+* If there was an error with the call (=> guzzle throws an exception) all methods will return false, unless `$handleExceptions` has been set to `true`, in which case the exception will be handed through
+* If the specified config file doesn't exist or doesn't include username / password / url, an exception will be thrown
 
 ## TODO
 
@@ -95,6 +103,7 @@ $client->singleCall("GET", $guzzleParameterArray);
 
 ## Changelog
 
+* 0.1.16 Enable / Disable `json_decode()` to allow for querying for raw files (thx dark-cms)
 * 0.1.15 Enable returning PDFs (thx ewaldmedia)
 * 0.1.14 Add _short period write limit reached_ error handling (thx resslinger)
 * 0.1.13 Change from [Laravels `str_contains`](https://github.com/laravel/framework/blob/8.x/src/Illuminate/Support/Str.php#L181) to [PHPs `stripos()`](https://www.php.net/manual/de/function.stripos.php) because [it doesn't require `ext-mbstring`](https://github.com/repat/plentymarkets-rest-client/pull/16#issuecomment-880731813) (thx DanMan)
